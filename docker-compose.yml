@@ -1,0 +1,65 @@
+version: '2'
+services:
+  kankan-cent: 
+    container_name: kankan-cent
+    build: ./centos
+    ports: 
+      - "80:80"
+    environment:
+      - "TZ=Asia/Tokyo"
+    links: 
+      - kankan-mysql
+    # volumes:
+      # - ./centos/setting/nginx/server.conf:/etc/nginx/conf.d/server.conf
+    volumes_from:
+      - wwwdata
+    networks:
+      kankan-net:
+        ipv4_address: 172.18.0.10
+    privileged: true
+    stdin_open: true
+    tty: true
+
+  kankan-mysql:
+    container_name: kankan-mysql
+    build: ./mysql
+    # command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - ./mysql/setting:/etc/mysql/conf.d
+      - ./mysql/sql:/docker-entrypoint-initdb.d
+    ports: 
+      - "3306:3306"
+    # volumes_from:
+    #   - sqldata
+    networks:
+      kankan-net:
+        ipv4_address: 172.18.0.20
+    environment:
+      MYSQL_ROOT_USER: rootkan
+      MYSQL_ROOT_PASSWORD: rootpass
+      # - "MYSQL_ALLOW_EMPTY_PASSWORD=no"
+      MYSQL_DATABASE: test
+      MYSQL_USER: kan
+      MYSQL_PASSWORD: passpass
+      TZ: Asia/Tokyo
+    privileged: true
+    tty: true
+
+  wwwdata:
+    container_name: wwwdata
+    image: busybox
+    volumes:
+      - ./www:/var/www/cgi-bin
+      - ./log:/var/log/httpd
+    networks:
+      kankan-net:
+        ipv4_address: 172.18.0.40
+
+networks:
+  kankan-net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.18.0.0/16
+          gateway: 172.18.0.1
