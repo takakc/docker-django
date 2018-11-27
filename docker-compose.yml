@@ -5,6 +5,7 @@ services:
     build: ./centos
     ports: 
       - "80:80"
+      - "8000:8000"
     environment:
       - "TZ=Asia/Tokyo"
     links: 
@@ -49,8 +50,13 @@ services:
     container_name: wwwdata
     image: busybox
     volumes:
-      - ./www:/var/www/cgi-bin
-      - ./log:/var/log/httpd
+      - ./www:/var/www/django
+      - ./log/nginx:/var/log/nginx
+      - ./centos/setting/uwsgi/uwsgi.ini:/etc/uwsgi/uwsgi.ini
+      - ./centos/setting/nginx/uwsgi_params:/etc/nginx/uwsgi_params
+      - ./centos/setting/nginx/server.conf:/etc/nginx/conf.d/server.conf
+      - ./centos/setting/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./log/uwsgi:/var/log/uwsgi
     networks:
       kankan-net:
         ipv4_address: 172.18.0.40
