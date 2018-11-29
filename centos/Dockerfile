@@ -4,10 +4,10 @@ ARG username="kan"
 ARG password="kankan"
 
 # 日本語対応
-# RUN localedef -v -c -i ja_JP -f UTF-8 ja_JP.UTF-8; echo "";
-# ENV LANG=ja_JP.UTF-8
-# RUN rm -f /etc/localtime
-# RUN ln -fs /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
+RUN localedef -v -c -i ja_JP -f UTF-8 ja_JP.UTF-8; echo "";
+ENV LANG=ja_JP.UTF-8
+RUN rm -f /etc/localtime
+RUN ln -fs /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
 
 RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 RUN yum -y install https://centos7.iuscommunity.org/ius-release.rpm
@@ -43,13 +43,14 @@ RUN pip install uwsgi
 RUN useradd -s /bin/bash -d /home/$username $username && echo "$username:$password" | chpasswd
 
 # 公開フォルダ
-RUN mkdir -p /var/www/django/
+RUN mkdir -p /home/$username/kankan-django/
 
 # Djangoインストール
-RUN pip install -r /var/www/django/requirements.txt
+ADD /setting/requirements.txt /home/$username/kankan-django/
+RUN pip install -r /home/$username/kankan-django/requirements.txt
 
 # www直下に作成
-# RUN django-admin.py startproject kankanApp /var/www/django/
+# RUN django-admin.py startproject kankanApp /home/$username/kankan-django/
 
 ADD ./setting/uwsgi/uwsgi.ini /etc/uwsgi/
 RUN mkdir -p /var/log/uwsgi

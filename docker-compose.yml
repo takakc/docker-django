@@ -50,7 +50,7 @@ services:
     container_name: wwwdata
     image: busybox
     volumes:
-      - ./www:/var/www/django
+      - ./src/kankan-django:/home/kan/kankan-django
       - ./log/nginx:/var/log/nginx
       - ./centos/setting/uwsgi/uwsgi.ini:/etc/uwsgi/uwsgi.ini
       - ./centos/setting/nginx/uwsgi_params:/etc/nginx/uwsgi_params
