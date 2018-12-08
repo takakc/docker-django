@@ -22,6 +22,7 @@ RUN yum -y install git \
                    nginx \
                    supervisor \
                    gcc \
+                #    mysql \
                   #  sqlite3 \
                    vim
 
@@ -42,6 +43,9 @@ RUN chmod 755 /etc/nginx/conf.d/server.conf
 RUN pip install uwsgi
 RUN useradd -s /bin/bash -d /home/$username $username && echo "$username:$password" | chpasswd
 
+# volumesでマウントしていると権限が面倒になったので思い切った行動※本番ではやらないように
+RUN chmod 777 /home/$username
+
 # 公開フォルダ
 RUN mkdir -p /home/$username/kankan-django/
 
@@ -61,7 +65,11 @@ RUN mkdir -p /var/run/uwsgi
 # mysql用
 RUN mkdir /var/lib/mysql
 
+ADD ./supervisord.conf /etc/supervisor/conf.d/
+
 # port解放
-# EXPOSE 22 80
-EXPOSE 80
-CMD ["supervisord", "-n"]
+EXPOSE 80 443
+# CMD ["supervisord", "-n"]
+COPY ./bootstrap.sh /
+RUN chmod +x /bootstrap.sh
+CMD ["/bootstrap.sh"]

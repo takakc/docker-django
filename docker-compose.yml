@@ -10,8 +10,6 @@ services:
       - "TZ=Asia/Tokyo"
     links: 
       - kankan-mysql
-    # volumes:
-      # - ./centos/setting/nginx/server.conf:/etc/nginx/conf.d/server.conf
     volumes_from:
       - wwwdata
     networks:
@@ -24,14 +22,11 @@ services:
   kankan-mysql:
     container_name: kankan-mysql
     build: ./mysql
-    # command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     volumes:
       - ./mysql/setting:/etc/mysql/conf.d
       - ./mysql/sql:/docker-entrypoint-initdb.d
     ports: 
       - "3306:3306"
-    # volumes_from:
-    #   - sqldata
     networks:
       kankan-net:
         ipv4_address: 172.18.0.20
@@ -51,15 +46,29 @@ services:
     image: busybox
     volumes:
       - ./src/kankan-django:/home/kan/kankan-django
-      - ./log/nginx:/var/log/nginx
+      - ./centos/supervisord.conf:/etc/supervisor/conf.d/supervisord.conf
       - ./centos/setting/uwsgi/uwsgi.ini:/etc/uwsgi/uwsgi.ini
       - ./centos/setting/nginx/uwsgi_params:/etc/nginx/uwsgi_params
       - ./centos/setting/nginx/server.conf:/etc/nginx/conf.d/server.conf
       - ./centos/setting/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./log/nginx:/var/log/nginx
       - ./log/uwsgi:/var/log/uwsgi
     networks:
       kankan-net:
         ipv4_address: 172.18.0.40
+
+  https-portal:
+    image: steveltn/https-portal:1
+    ports:
+      - '443:443'
+    links: 
+      - kankan-cent
+    networks:
+      kankan-net:
+        ipv4_address: 172.18.0.30
+    environment:
+      DOMAINS: 'kankan.test'
+      STAGE: 'local'
 
 networks:
   kankan-net:
