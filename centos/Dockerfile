@@ -13,22 +13,30 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 RUN yum -y install https://centos7.iuscommunity.org/ius-release.rpm
 
 RUN yum -y install git \
+                   make \
                    wget \
-                   python36u \
-                   python36u-libs \
-                   python36u-devel \
-                  #  python36u-setuptools \
-                   python36u-pip \
                    nginx \
                    supervisor \
                    gcc \
-                #    mysql \
-                  #  sqlite3 \
+                   zlib-devel \
+                   libffi-devel \
+                   openssl-devel \
                    vim
+
+# python3.7.1インストール
+RUN wget https://www.python.org/ftp/python/3.7.1/Python-3.7.1.tgz -P /tmp/
+RUN tar xvzf /tmp/Python-3.7.1.tgz
+RUN cd /Python-3.7.1/ && ./configure --prefix=/usr/local/python
+RUN cd /Python-3.7.1/ && make install
+RUN echo "export PATH=$PATH:/usr/local/python/bin" >> ~/.bash_profile
+RUN ln -s /usr/local/python/bin/python3 /usr/local/bin/python
+RUN ln -s /usr/local/python/bin/pip3.7 /usr/local/bin/pip
+RUN ln -s /usr/local/python/bin/python3 /bin/python3.7
+RUN ln -s /usr/local/python/bin/pip3.7 /bin/pip3.7
 
 # pipインストール
 RUN wget https://bootstrap.pypa.io/get-pip.py
-RUN python3.6 get-pip.py
+RUN python3.7 get-pip.py
 
 # RUN pip install -U pip setuptools
 
@@ -40,7 +48,6 @@ COPY ./setting/nginx/nginx.conf /etc/nginx/nginx.conf
 ADD ./setting/nginx/server.conf /etc/nginx/conf.d/
 RUN chmod 755 /etc/nginx/conf.d/server.conf
 
-RUN pip install uwsgi
 RUN useradd -s /bin/bash -d /home/$username $username && echo "$username:$password" | chpasswd
 
 # volumesでマウントしていると権限が面倒になったので思い切った行動※本番ではやらないように
@@ -50,8 +57,8 @@ RUN chmod 777 /home/$username
 RUN mkdir -p /home/$username/kankan-django/
 
 # Djangoインストール
-ADD /setting/requirements.txt /home/$username/kankan-django/
-RUN pip install -r /home/$username/kankan-django/requirements.txt
+ADD /setting/requirements.txt /home/$username/
+RUN pip3.7 install -r /home/$username/requirements.txt
 
 # www直下に作成
 # RUN django-admin.py startproject kankanApp /home/$username/kankan-django/
