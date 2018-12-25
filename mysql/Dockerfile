@@ -1,8 +1,11 @@
-FROM mysql/mysql-server:5.7
-MAINTAINER kan
+FROM mysql/mysql-server:8.0
+MAINTAINER Takamasa Kan
 
-RUN localedef -v -c -i ja_JP -f UTF-8 ja_JP.UTF-8; echo "";
-env LANG=ja_JP.UTF-8
+
+ENV LANG=ja_JP.UTF-8
+
+ADD ./setting/my.cnf /etc/
+ADD ./setting/mysql_character_set.conf.d /etc/mysql/conf.d/
 
 RUN rm -f /etc/localtime && \
     ln -fs /usr/share/zoneinfo/Asia/Tokyo /etc/localtime

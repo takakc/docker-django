@@ -5,7 +5,6 @@ services:
     build: ./centos
     ports: 
       - "80:80"
-      - "8000:8000"
     environment:
       - "TZ=Asia/Tokyo"
     links: 

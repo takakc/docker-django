@@ -50,8 +50,8 @@ RUN chmod 777 /home/$username
 RUN mkdir -p /home/$username/kankan-django/
 
 # Djangoインストール
-ADD /setting/requirements.txt /home/$username/kankan-django/
-RUN pip install -r /home/$username/kankan-django/requirements.txt
+ADD /setting/requirements.txt /home/$username/
+RUN pip install -r /home/$username/requirements.txt
 
 # www直下に作成
 # RUN django-admin.py startproject kankanApp /home/$username/kankan-django/
