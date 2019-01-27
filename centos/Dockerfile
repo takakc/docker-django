@@ -5,6 +5,7 @@ ARG password="kankan"
 
 # 日本語対応
 RUN localedef -v -c -i ja_JP -f UTF-8 ja_JP.UTF-8; echo "";
+RUN localedef -f UTF-8 -i ja_JP ja_JP.UTF-8;
 ENV LANG=ja_JP.UTF-8
 RUN rm -f /etc/localtime
 RUN ln -fs /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
